@@ -31,8 +31,6 @@ on_ac_settings() {
     echo 'auto' > '/sys/bus/pci/devices/0000:01:00.0/power/control';
 
     echo 'AC' | tee /tmp/powerstate
-
-    echo "ON AC"
 }
 
 on_battery_settings() {

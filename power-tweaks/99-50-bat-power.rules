@@ -1,2 +1,0 @@
-# AC NOT PLUGGED-IN
-SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/usr/local/bin/switch-power-settings 1"

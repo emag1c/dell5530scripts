@@ -5,8 +5,10 @@ cp switch-power-settings /usr/local/bin
 chmod a+x /usr/local/bin/switch-power-settings
 
 # copy the power rule files into udev
-cp 99-50-ac-power.rules /etc/udev/rules.d/
-cp 99-50-bat-power.rules /etc/udev/rules.d/
+cp 99-50-mypower.rules /etc/udev/rules.d/
+
+# copy prime restart
+cp prime-restart /usr/local/bin
 
 # copy the start up file into init.d
 cp mystartupfixes /etc/init.d/
