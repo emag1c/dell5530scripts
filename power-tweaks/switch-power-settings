@@ -1,0 +1,72 @@
+#!/bin/sh
+
+# Shell script to reduce energy consumption when running battery. Place
+# it in /etc/pm/power.d/ and give execution rights.
+
+
+on_ac_settings() {
+    # Start AC powered settings #
+
+    #VM writeback timeout reset
+    echo '' > '/proc/sys/vm/dirty_writeback_centisecs';
+    # NMI watchdog should be turned on	
+    echo '' > '/proc/sys/kernel/nmi_watchdog';
+
+    # Disable SATA link power management for all hosts	
+    for host in /sys/class/scsi_host/host*/link_power_management_policy;
+        do echo '' > $host;
+    done
+
+    # Disable PM for all I2C Adapters
+    for adapter in /sys/bus/i2c/devices/i2c*/device/power/control;
+        do echo on > $adapter;
+    done
+
+    # Disable PCI autosuspend
+    for pci in /sys/bus/pci/devices/*/power/control;
+        do echo on > $pci;
+    done
+
+    # Runtime PM for PCI Device NVIDIA Corporation GP107GLM [Quadro P1000 Mobile]	
+    echo 'auto' > '/sys/bus/pci/devices/0000:01:00.0/power/control';
+
+    echo 'AC' | tee /tmp/powerstate
+
+    echo "ON AC"
+}
+
+on_battery_settings() {
+    # Start battery powered settings -#
+
+    #VM writeback timeout set
+    echo '1500' > '/proc/sys/vm/dirty_writeback_centisecs';
+    # NMI watchdog should be turned off
+    echo '0' > '/proc/sys/kernel/nmi_watchdog';
+
+    # Enable SATA link power management for all hosts
+    for host in /sys/class/scsi_host/host*/link_power_management_policy;
+        do echo min_power > $host;
+    done
+
+    # Enable PM for all I2C Adapters
+    for adapter in /sys/bus/i2c/devices/i2c*/device/power/control;
+        do echo auto > $adapter;
+    done
+
+    # Turn on USB device BillBoard Device [Realtek]	
+    echo 'auto' > '/sys/bus/usb/devices/1-2.4.3/power/control';
+
+    # Enable PCI autosuspend
+    for pci in /sys/bus/pci/devices/*/power/control;
+        do echo auto > $pci;
+    done
+    echo 'BAT' | tee /tmp/powerstate
+}
+
+case $1 in
+    1) on_battery_settings ;;
+    0) on_ac_settings ;;
+    *) exit $NA
+esac
+
+exit 0

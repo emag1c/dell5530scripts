@@ -1,0 +1,53 @@
+#! /bin/bash
+
+
+PRIME_PROFILE=`/usr/bin/prime-select query`
+
+helpmsg() {
+echo "
+script to switch prime profiles and restart right away
+
+i, intel: switches to intel profile
+n, nvidia: switches to nvidia"
+}
+
+wait_and_restart() {
+    local profile="$1"
+    if [ "$PRIME_PROFILE" = "$profile" ]; then
+        echo "profile $profile already selected"
+    else
+        i=0
+        until [ $i -gt 5 ]
+        do
+            sleep 1
+            echo -n "."
+            ((i=i+1))
+        done
+        echo -n "restarting!"
+        /usr/bin/prime-select $profile
+        sleep 1
+        shutdown -r 0
+    fi
+    exit 0
+}
+
+switch_to_intel() {
+    wait_and_restart intel
+}
+
+switch_to_nvidia() { 
+    wait_and_restart nvidia
+}
+
+case $1 in
+    i) switch_to_intel ;;
+    intel) switch_to_intel ;;
+    n) switch_to_nvidia ;;
+    nvidia) switch_to_nvidia ;;
+    q) echo $PRIME_PROFILE ;;
+    query) echo $PRIME_PROFILE ;;
+    help) helpmsg ;;
+    *) exit
+esac
+
+exit 0

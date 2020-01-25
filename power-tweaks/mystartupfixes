@@ -1,0 +1,23 @@
+#! /bin/bash
+
+# change the fn mode if file exists
+FNMODE_FILE="/sys/module/hid_apple/parameters/fnmode"
+
+if test -f "$FNMODE_FILE"; then
+    echo 0 > $FNMODE_FILE
+fi
+
+# Runtime PM for PCI Device NVIDIA Corporation GP107GLM [Quadro P1000 Mobile]	
+echo 'auto' > '/sys/bus/pci/devices/0000:01:00.0/power/control';
+
+ac_adapter=`/usr/bin/acpi -a | grep -o "on"`
+
+if [ "$ac_adapter" = "on" ]; then
+    /usr/local/bin/switch-power-settings 0
+else
+    /usr/local/bin/switch-power-settings 1
+fi
+
+/usr/bin/acpi -a > /tmp/acpionstartup
+
+exit 0
